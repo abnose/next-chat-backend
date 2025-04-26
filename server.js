@@ -27,9 +27,19 @@ io.on("connection", (socket) => {
 
     logedInUsers.forEach((user) => {
       // if (user !== userId) {
-      socket.to(user).emit("online-user-update", logedInUsers);
+      io.to(user).emit("online-user-update", logedInUsers);
       // }
     });
+  });
+
+  socket.on("send-new-message", (message) => {
+    message.chat.users.forEach((user) => {
+      console.log(user._id);
+      // if (user._id !== message.sender._id) {
+      io.to(user._id).emit("new-message-received", message);
+      // }
+    });
+    // socket.to(message.receiver).emit("new-message-receive", mess age);
   });
 
   socket.on("logout", (userId) => {
@@ -40,10 +50,19 @@ io.on("connection", (socket) => {
 
     logedInUsers.forEach((user) => {
       // if (user !== userId) {
-      socket.to(user).emit("online-user-update", logedInUsers);
+      io.to(user).emit("online-user-update", logedInUsers);
       // }
     });
   });
+
+  socket.on("typing", ({ chat, senderId }) => {
+    chat.users.forEach((user) => {
+      if (user._id !== senderId) {
+        io.to(user._id).emit("typing", chat);
+      }
+    });
+  });
+
   //   console.log("a user connected");
   //   socket.on("disconnect", () => {
   //     console.log("user disconnected");
