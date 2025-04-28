@@ -23,8 +23,6 @@ io.on("connection", (socket) => {
       }
     }
 
-    console.log(logedInUsers);
-
     logedInUsers.forEach((user) => {
       // if (user !== userId) {
       io.to(user).emit("online-user-update", logedInUsers);
@@ -34,7 +32,6 @@ io.on("connection", (socket) => {
 
   socket.on("send-new-message", (message) => {
     message.chat.users.forEach((user) => {
-      console.log(user._id);
       // if (user._id !== message.sender._id) {
       io.to(user._id).emit("new-message-received", message);
       // }
@@ -45,8 +42,6 @@ io.on("connection", (socket) => {
   socket.on("logout", (userId) => {
     socket.leave(userId);
     logedInUsers = logedInUsers.filter((user) => user !== userId);
-
-    console.log(logedInUsers);
 
     logedInUsers.forEach((user) => {
       // if (user !== userId) {
@@ -69,6 +64,10 @@ io.on("connection", (socket) => {
         io.to(user._id).emit("typing", { chat, senderName });
       }
     });
+  });
+
+  socket.on("user-leave", ({ chat, user }) => {
+    io.to(user._id).emit("user-left", { chat, user });
   });
 
   //   console.log("a user connected");
