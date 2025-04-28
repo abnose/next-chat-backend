@@ -55,10 +55,18 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("typing", ({ chat, senderId }) => {
+  socket.on("read-all-messages", ({ chatId, readByUserId, users }) => {
+    users.forEach((user) => {
+      // if (user._id !== readByUserId) {
+      io.to(user).emit("user-read-all-chat-messages", { chatId, readByUserId });
+      // }
+    });
+  });
+
+  socket.on("typing", ({ chat, senderId, senderName }) => {
     chat.users.forEach((user) => {
       if (user._id !== senderId) {
-        io.to(user._id).emit("typing", chat);
+        io.to(user._id).emit("typing", { chat, senderName });
       }
     });
   });
