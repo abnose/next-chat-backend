@@ -32,8 +32,21 @@ io.on("connection", (socket) => {
 
   socket.on("send-new-message", (message) => {
     message.chat.users.forEach((user) => {
+      let isLogged = false;
+      let newMessage = { ...message };
+      if (message?.isLogged) {
+        isLogged = true;
+        const removed = message?.chat?.users?.filter(
+          (user) => message?.sender?._id != user._id
+        );
+        newMessage.chat.users = removed;
+      }
+
       // if (user._id !== message.sender._id) {
-      io.to(user._id).emit("new-message-received", message);
+      io.to(user._id).emit(
+        "new-message-received",
+        isLogged ? newMessage : message
+      );
       // }
     });
     // socket.to(message.receiver).emit("new-message-receive", mess age);
